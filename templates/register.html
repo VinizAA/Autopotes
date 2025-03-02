@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> 
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center; 
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .icon {
+            font-size: 50px;
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        .password-container, .conf_password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-container input[type="password"], .conf_password-container input[type="conf_password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .password-container i, .conf_password-container i{
+            position: absolute;
+            right: 10px;
+            top: 40%; 
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #555;
+            font-size: 18px; 
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-size: 14px;
+            color: #555;
+            text-align: left; 
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="dob"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 5px;
+        }
+
+        .success {
+            color: green;
+            margin-top: 10px;
+            text-align: center; 
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        p a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        p a:hover {
+            text-decoration: underline;
+        }
+
+        .dark-mode-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode-btn:hover {
+            background-color: #555;
+            color: #ddd;
+        }  
+
+        /* darkmode */
+        body.dark-mode {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .form-container {
+            background-color: #1e1e1e;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode h2 {
+            color: #ffffff;
+        }
+
+        body.dark-mode input[type="submit"] {
+            background-color: #6a0dad;
+        }
+
+        body.dark-mode input[type="submit"]:hover {
+            background-color: #4b0082;
+        }
+
+        body.dark-mode .icon {
+            color: #ff5555;
+        }
+
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="password"],
+        body.dark-mode input[type="email"] {
+            background-color: #1e1e1e;
+        }
+
+        body.dark-mode label,
+        body.dark-mode p {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <i class="fas fa-user icon"></i>
+        <h2>Cadastro</h2>
+        <form method="POST">
+            <label for="full_name">Nome completo</label>
+            <input type="text" id="full_name" name="full_name" value="{{ full_name }}" required>
+
+            <label for="password">Senha</label>
+            <div class="password-container">
+                <input type="password" id="password" name="password" required>
+                <i class="fas fa-eye" id="togglePassword"></i>
+            </div>
+
+            <label for="conf_password">Confirme sua senha</label>
+            <div class="password-container">
+                <input type="password" id="conf_password" name="conf_password" required>
+                <i class="fas fa-eye" id="toggleConfPassword"></i>
+            </div>
+            {% if error_password %}
+                <div style="margin-top: 12px;" class="error">{{ error_password }}</div>  
+            {% endif %}
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{ email }}" required>
+            {% if error_user %}
+                <div style="margin-bottom: 20px" class="error">{{ error_user }}</div>  
+            {% endif %}
+
+            <input type="submit" value="Cadastrar">
+            {% if success_message %}
+                <div class="success">{{ success_message }}</div>
+                <script>
+                    setTimeout(function() {
+                        window.location.href = "{{ url_for('login') }}";
+                    }, 2000);  
+                </script>
+            {% endif %}
+        </form>
+        <p>Já tem uma conta? <a href="/login">Faça login aqui</a></p>
+    </div>
+
+    <button class="dark-mode-btn" onclick="darkmode()">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function (e) {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        const toggleConfPassword = document.querySelector('#toggleConfPassword');
+        const confPassword = document.querySelector('#conf_password');
+
+        toggleConfPassword.addEventListener('click', function (e) {
+            const type = confPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            confPassword.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.dark-mode-btn i').classList.replace("fa-moon", "fa-sun");
+        }
+
+        function darkmode() {
+            document.body.classList.toggle("dark-mode");
+
+            if (document.body.classList.contains("dark-mode")) {
+                localStorage.setItem('dark-mode', 'enabled'); // Salva o estado no localStorage
+                document.querySelector('.dark-mode-btn i').classList.replace("fa-moon", "fa-sun");
+            } else {
+                localStorage.setItem('dark-mode', 'disabled'); // Remove o estado do localStorage
+                document.querySelector('.dark-mode-btn i').classList.replace("fa-sun", "fa-moon");
+            }
+        }
+    </script>
+
+</body>
+</html>
