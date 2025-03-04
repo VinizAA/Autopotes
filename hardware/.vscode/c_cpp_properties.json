@@ -10,6 +10,13 @@
             "includePath": [
                 "/home/rafaelfernandes/Documents/Autopotes/hardware/include",
                 "/home/rafaelfernandes/Documents/Autopotes/hardware/src",
+                "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/Adafruit SSD1306",
+                "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/Adafruit GFX Library",
+                "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/Adafruit BusIO",
+                "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
+                "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
+                "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/DHT sensor library",
+                "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/Adafruit Unified Sensor",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/newlib/platform_include",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/freertos/FreeRTOS-Kernel/include",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/freertos/FreeRTOS-Kernel/portable/xtensa/include",
@@ -281,7 +288,6 @@
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/RainMaker/src",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SD/src",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SD_MMC/src",
-                "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SimpleBLE/src",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/TFLiteMicro/src",
@@ -291,7 +297,6 @@
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                 "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
-                "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                 ""
             ],
             "browse": {
@@ -299,6 +304,13 @@
                 "path": [
                     "/home/rafaelfernandes/Documents/Autopotes/hardware/include",
                     "/home/rafaelfernandes/Documents/Autopotes/hardware/src",
+                    "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/Adafruit SSD1306",
+                    "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/Adafruit GFX Library",
+                    "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/Adafruit BusIO",
+                    "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
+                    "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
+                    "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/DHT sensor library",
+                    "/home/rafaelfernandes/Documents/Autopotes/hardware/.pio/libdeps/esp32doit-devkit-v1/Adafruit Unified Sensor",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/newlib/platform_include",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/freertos/FreeRTOS-Kernel/include",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/freertos/FreeRTOS-Kernel/portable/xtensa/include",
@@ -570,7 +582,6 @@
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/RainMaker/src",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SD/src",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SD_MMC/src",
-                    "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/SimpleBLE/src",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/TFLiteMicro/src",
@@ -580,7 +591,6 @@
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                     "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
-                    "/home/rafaelfernandes/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                     ""
                 ]
             },

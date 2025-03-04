@@ -1,13 +1,21 @@
 #include <Arduino.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
+#include "sensor_data.h"
+#include "dht_task.h"
+#include "display_task.h"
 
 void setup() {
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
+    //Semaphore
+    sensorData.mutex = xSemaphoreCreateMutex();
+
+    //Tasks
+    initDhtTask();
+    initDisplayTask();
+
+    //Scheduler
+    vTaskStartScheduler();
 }
 
-void loop() {
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(500);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(500);
-}
+void loop() {}
