@@ -20,6 +20,10 @@ void DhtTask(void *pvParameters) {
             if (!isnan(temp) && !isnan(hum)) {
                 sensorData.temperature = temp;
                 sensorData.humidity = hum;
+                Serial.print("\nHumidade: ");
+                Serial.print(hum);
+                Serial.print("  ||  Temperatura: ");
+                Serial.print(temp);
             }
 
             xSemaphoreGive(sensorData.mutex);
