@@ -204,46 +204,30 @@
 </head>
 <body>
     <div class="form-container">
-        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <i class="fas fa-user icon"></i>
-        <h2>Cadastro</h2>
+        <a href="/profile/{{ session['email'] }}" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <i class="fas fa-plus icon"></i>
+        <h2>Novo pote</h2>
         <form method="POST">
-            <label for="full_name">Nome completo</label>
-            <input type="text" id="full_name" name="full_name" value="{{ full_name }}" required>
-            
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="{{ email }}" required>
-            
-            <label for="password">Senha</label>
-            <div class="password-container">
-                <input type="password" id="password" name="password" required>
-                <i class="fas fa-eye" id="togglePassword"></i>
-            </div>
+            <label for="full_name">Nome</label>
+            <input type="text" id="name" name="name" value="{{ name }}" required>
 
-            <label for="conf_password">Confirme sua senha</label>
-            <div class="password-container">
-                <input type="password" id="conf_password" name="conf_password" required>
-                <i class="fas fa-eye" id="toggleConfPassword"></i>
-            </div>
-            {% if error_password %}
-                <div style="margin-top: 12px;" class="error">{{ error_password }}</div>  
+            <label for="full_name">Espécie</label>
+            <input type="text" id="especie" name="especie" value="{{ especie }}" required>
+
+            {% if error_info %}
+                <div style="margin-top: 12px;" class="error">{{ error_info }}</div>  
             {% endif %}
 
-            {% if error_user %}
-                <div style="margin-bottom: 20px" class="error">{{ error_user }}</div>  
-            {% endif %}
-
-            <input type="submit" value="Cadastrar">
+            <input type="submit" value="Adicionar">
             {% if success_message %}
                 <div class="success">{{ success_message }}</div>
                 <script>
                     setTimeout(function() {
-                        window.location.href = "{{ url_for('login') }}";
+                        window.location.href = "{{ url_for('profile')}}";
                     }, 2000);  
                 </script>
             {% endif %}
         </form>
-        <p>Já tem uma conta? <a href="/login">Faça login aqui</a></p>
     </div>
 
     <button class="dark-mode-btn" onclick="darkmode()">

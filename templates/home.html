@@ -124,28 +124,6 @@
     </style> 
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen">
-
-    <div id="sidebar" class="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h2 class="text-xl font-bold">Menu</h2>
-            <button id="closeSidebar" class="text-2xl">&times;</button>
-        </div>
-        <nav class="p-4">
-            <ul class="space-y-4">
-                <li><a href="/" class="block text-lg hover:text-blue-500">Home</a></li>
-                <li><a href="/feedbacks" class="block text-lg hover:text-blue-500">Feedbacks</a></li>
-                <li><a href="/about_us" class="block text-lg hover:text-blue-500">Sobre nós</a></li>
-                <li><a href="/contact" class="block text-lg hover:text-blue-500">Contato</a></li>
-            </ul>
-        </nav>
-    </div>
-
-    <header class="flex justify-between items-center p-4">
-        <button id="openSidebar">
-            <i class="fas fa-bars text-2xl"></i>
-        </button>
-    </header>
-
     <main class="flex-grow flex flex-col items-center justify-center text-center">
         <img id="logo" class="mb-4" height="200" src="{{ url_for('static', filename='logo.png') }}" width="200"/>
         <h1 class="text-8xl font-bold mb-4">AUTOPOTES</h1>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.5/lib/index.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> 
     <style>
         body {
@@ -27,6 +27,7 @@
             max-width: 400px;
             width: 100%;
             text-align: center;
+            position: relative;
         }
 
         h2 {
@@ -157,26 +158,28 @@
         #sidebar a:hover {
             color: #007bff;
         }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            transition: color 0.3s; 
+        }
+
+        .back-btn:hover {
+            color: #007bff;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen">
-    <div id="sidebar" class="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h2 class="text-xl font-bold">Menu</h2>
-            <button id="closeSidebar" class="text-2xl">&times;</button>
-        </div>
-        <nav class="p-4">
-            <ul class="space-y-4">
-                <li><a href="/" class="block text-lg hover:text-blue-500">Home</a></li>
-                <li><a href="/feedbacks" class="block text-lg hover:text-blue-500">Feedbacks</a></li>
-                <li><a href="/about_us" class="block text-lg hover:text-blue-500">Sobre nós</a></li>
-                <li><a href="/contact" class="block text-lg hover:text-blue-500">Contato</a></li>
-            </ul>
-        </nav>
-    </div>
-
     <div class="form-container">
         <i class="fas fa-sign-in-alt icon"></i>
+        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i></a>
         <h2>Login</h2>
         <form method="POST">
             <label for="email">Email</label>
@@ -194,15 +197,29 @@
             <input type="submit" value="Entrar">
         </form>
         <p>
-            <br>Ainda não tem uma conta?
+            Ainda não tem uma conta?
             <a href="/register">Cadastre-se aqui</a>
         </p>
-        {% if error_login %}
-            <error class="error">{{ error_login }}</error>
+        {% if error_password %}
+            <error class="error">{{ error_password }}</error>
         {% endif %}
-        {% if error_cred %}
-            <error class="error">{{ error_cred }}</error>
+        {% if error_email %}
+            <error class="error">{{ error_email }}</error>
         {% endif %}
     </div>
+
+    <script>
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
+    
+            let email = document.getElementById("email").value;
+            let encodedEmail = encodeURIComponent(email); // Codifica o email para URL
+    
+            window.location.href = `/profile/${encodedEmail}`; // Redireciona para a página do perfil
+        });
+    </script>
 </body>
 </html>
+
+
+
