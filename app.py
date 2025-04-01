@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, make_response, send_from_directory
-import sqlite3, requests, re, smtplib, base64, os, random
+import sqlite3, requests, re, smtplib, base64, os, random, io
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
@@ -13,7 +13,7 @@ def init_db():
     con = sqlite3.connect('clients.db')
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS users (id_user INTEGER PRIMARY KEY AUTOINCREMENT, full_name TEXT, password TEXT, email TEXT, profile_pic BLOB)")
-    c.execute("CREATE TABLE IF NOT EXISTS potes (id_pote INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, especie TEXT, data_criacao DATETIME, agua INTEGER, nutri INTEGER, id_user INTEGER, FOREIGN KEY(id_user) REFERENCES users(id_user) ON DELETE CASCADE)")
+    c.execute("CREATE TABLE IF NOT EXISTS potes (id_pote INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, especie TEXT, data_criacao DATETIME, agua INTEGER, nutri INTEGER, w_graph BLOB, n_graph BLOB, id_user INTEGER, FOREIGN KEY(id_user) REFERENCES users(id_user) ON DELETE CASCADE)")
     
     con.commit()
     con.close()
@@ -40,13 +40,11 @@ def login():
         name = c.fetchone()
         name = name[0] if name else "Usuário"
 
-        if find_email: #tem conta
-            #verificar se senha é da conta validada
+        if find_email:
             c.execute("SELECT password FROM users WHERE email=?", (email,))
             password_db = c.fetchone()
 
             if password == password_db[0]:
-                #entra na conta
                 c.execute("SELECT * FROM users WHERE email=? AND password=?", (email, password))
                 user_info = c.fetchone()
 
@@ -105,6 +103,8 @@ def register():
 
 @app.route('/profile/<email>')
 def profile(email):
+    water_graph, nutri_graph = None, None
+
     con = sqlite3.connect('clients.db')
     c = con.cursor()
 
@@ -130,18 +130,30 @@ def profile(email):
 
     potes_list = [{"id_pote": pote[0], "nome": pote[1], "especie": pote[2], "data_criacao": pote[3], "agua": pote[4], "nutri": pote[5]} for pote in potes]
 
-    print(potes_list)
+    get_sensor_data()    
+    c.execute("SELECT id_pote, agua, nutri FROM potes WHERE id_user = ?", (id_usuario,))
+    values = c.fetchone()
 
-    water_graph = create_graphs(30, "w")
-    nutri_graph = create_graphs(70, "n")
+    if values:
+        id_pote, agua, nutri = values
 
-    #print(water_graph)
-    #print(nutri_graph)
-    
+        agua = agua if agua is not None else 0
+        nutri = nutri if nutri is not None else 0
+
+        create_graphs(agua, "w", id_pote)
+        create_graphs(nutri, "n", id_pote)
+
+    c.execute("SELECT w_graph, n_graph FROM potes WHERE id_user = ?", (id_usuario,))
+    values_graph = c.fetchone()
+
+    if values_graph:
+        water_graph = base64.b64encode(values_graph[0]).decode('utf-8') if values_graph[0] else None
+        nutri_graph = base64.b64encode(values_graph[1]).decode('utf-8') if values_graph[1] else None
+
     con.close()
     return render_template('profile.html', email=email, name=name, image_base64=image_perfil, potes=potes_list, water_graph=water_graph, nutri_graph=nutri_graph)
 
-@app.route('/new_pote', methods=['GET', 'POST'])
+@app.route('/new_pote', methods=['GET', 'POST'])    
 def new_pote():
     con = sqlite3.connect('clients.db')
     c = con.cursor()
@@ -194,12 +206,13 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-@app.route('/images/<filename>')
-def serve_image(filename):
-    return send_from_directory('images', filename)
-
 #auxiliar functions
-def create_graphs(valor, id):
+def create_graphs(valor, id, id_pote):
+    con = sqlite3.connect('clients.db')
+    c = con.cursor()
+
+    valor = int(valor)
+
     if not 0 <= valor <= 100:
         raise ValueError("O valor deve estar entre 0 e 100.")
     
@@ -239,15 +252,17 @@ def create_graphs(valor, id):
     ax.axis('off')
     ax.set_facecolor('#F0F0F0')
 
-    nome_arquivo = f"{id}_{valor}.png"
-    caminho_imagem = os.path.join(os.path.dirname(__file__), 'static', 'graphs', nome_arquivo)
-    
-    os.makedirs(os.path.dirname(caminho_imagem), exist_ok=True)
+    img_buffer = io.BytesIO()
+    plt.savefig(img_buffer, format='png')
+    img_buffer.seek(0)
+    img_data = img_buffer.getvalue()
+    plt.close(fig)
 
-    plt.savefig(caminho_imagem, bbox_inches='tight', pad_inches=0.5)
-    plt.close()
+    coluna = "w_graph" if id == "w" else "n_graph"
+    c.execute(f"UPDATE potes SET {coluna} = ? WHERE id_pote = ?", (img_data, id_pote))
 
-    return f"graphs/{nome_arquivo}"
+    con.commit()
+    con.close()
 
 def choose_image_profile(email):
     pasta = 'images'
@@ -269,7 +284,37 @@ def choose_image_profile(email):
     con.commit()
     con.close()
 
+@app.route('/get_sensor_data', methods=['GET', 'POST'])
+def get_sensor_data():
+    if not request.is_json:
+        return jsonify({"error": "A requisição deve ser JSON"}), 415
+
+    data = request.get_json()
+    umidade = data.get("umidade")
+    nutrientes = data.get("nutrientes")
+    email = data.get("email")
+
+    if umidade is None or nutrientes is None or email is None:
+        return jsonify({"error": "Dados inválidos"}), 400
+
+    con = sqlite3.connect('clients.db')
+    c = con.cursor()
+
+    c.execute("SELECT id_user FROM users WHERE email = ?", (email,))
+    id_usuario = c.fetchone()
+
+    if id_usuario:
+        id_usuario = id_usuario[0]
+
+        c.execute("UPDATE potes SET agua = ?, nutri = ? WHERE id_user = ?", (umidade, nutrientes, id_usuario))
+        con.commit()
+        con.close()
+
+        return jsonify({"message": "Dados recebidos com sucesso", }), 200
+
+    con.close()
+    return jsonify({"error": "Usuário não encontrado"}), 404
+
 if __name__ == '__main__':
     init_db()   
     app.run(debug=True)
-

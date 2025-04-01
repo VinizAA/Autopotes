@@ -177,7 +177,7 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             if (!sessionStorage.getItem("audioPlayed")) {
-                var audio = new Audio("/static/optimus_prime.mp3");
+                var audio = new Audio("Autopots/static/optimus_prime.mp3");
                 audio.play().then(() => {
                     sessionStorage.setItem("audioPlayed", "true");
                 }).catch(error => console.log("Erro ao reproduzir áudio:", error));
