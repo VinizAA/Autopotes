@@ -129,29 +129,38 @@ def profile(email):
         potes = []
 
     potes_list = [{"id_pote": pote[0], "nome": pote[1], "especie": pote[2], "data_criacao": pote[3], "agua": pote[4], "nutri": pote[5]} for pote in potes]
-
-    get_sensor_data()    
+    
     c.execute("SELECT id_pote, agua, nutri FROM potes WHERE id_user = ?", (id_usuario,))
-    values = c.fetchone()
+    potes_data = c.fetchall()
 
-    if values:
-        id_pote, agua, nutri = values
+    for id_pote, agua, nutri in potes_data:
+        create_graphs(int(agua) if agua not in [None, 'None'] else 0, "w", id_pote, con, c)
+        create_graphs(int(nutri) if nutri not in [None, 'None'] else 0, "n", id_pote, con, c)
 
-        agua = agua if agua is not None else 0
-        nutri = nutri if nutri is not None else 0
+    #graphs
+    potes_list = []
+    for pote in potes:
+        id_pote, nome, especie, data_criacao, agua, nutri = pote
 
-        create_graphs(agua, "w", id_pote)
-        create_graphs(nutri, "n", id_pote)
+        c.execute("SELECT w_graph, n_graph FROM potes WHERE id_pote = ?", (id_pote,))
+        graphs = c.fetchone()
+        water_graph = base64.b64encode(graphs[0]).decode('utf-8') if graphs[0] else None
+        nutri_graph = base64.b64encode(graphs[1]).decode('utf-8') if graphs[1] else None
 
-    c.execute("SELECT w_graph, n_graph FROM potes WHERE id_user = ?", (id_usuario,))
-    values_graph = c.fetchone()
-
-    if values_graph:
-        water_graph = base64.b64encode(values_graph[0]).decode('utf-8') if values_graph[0] else None
-        nutri_graph = base64.b64encode(values_graph[1]).decode('utf-8') if values_graph[1] else None
+        potes_list.append({
+            "id_pote": id_pote,
+            "nome": nome,
+            "especie": especie,
+            "data_criacao": data_criacao,
+            "agua": agua,
+            "nutri": nutri,
+            "water_graph": water_graph,
+            "nutri_graph": nutri_graph
+        })
 
     con.close()
-    return render_template('profile.html', email=email, name=name, image_base64=image_perfil, potes=potes_list, water_graph=water_graph, nutri_graph=nutri_graph)
+    return render_template('profile.html', email=email, name=name, image_base64=image_perfil, potes=potes_list)
+
 
 @app.route('/new_pote', methods=['GET', 'POST'])    
 def new_pote():
@@ -207,10 +216,7 @@ def logout():
     return redirect(url_for('login'))
 
 #auxiliar functions
-def create_graphs(valor, id, id_pote):
-    con = sqlite3.connect('clients.db')
-    c = con.cursor()
-
+def create_graphs(valor, id, id_pote, con, c):
     valor = int(valor)
 
     if not 0 <= valor <= 100:
@@ -262,7 +268,6 @@ def create_graphs(valor, id, id_pote):
     c.execute(f"UPDATE potes SET {coluna} = ? WHERE id_pote = ?", (img_data, id_pote))
 
     con.commit()
-    con.close()
 
 def choose_image_profile(email):
     pasta = 'images'
@@ -284,36 +289,46 @@ def choose_image_profile(email):
     con.commit()
     con.close()
 
-@app.route('/get_sensor_data', methods=['GET', 'POST'])
+@app.route('/get_sensor_data', methods=['POST'])
 def get_sensor_data():
     if not request.is_json:
         return jsonify({"error": "A requisição deve ser JSON"}), 415
 
     data = request.get_json()
-    umidade = data.get("umidade")
-    nutrientes = data.get("nutrientes")
-    email = data.get("email")
 
-    if umidade is None or nutrientes is None or email is None:
-        return jsonify({"error": "Dados inválidos"}), 400
+    if not isinstance(data, list):
+        return jsonify({"error": "Esperado uma lista de objetos"}), 400
 
     con = sqlite3.connect('clients.db')
     c = con.cursor()
 
-    c.execute("SELECT id_user FROM users WHERE email = ?", (email,))
-    id_usuario = c.fetchone()
+    for item in data:
+        pote_id = item.get("id")
+        umidade = item.get("umidade")
+        nutrientes = item.get("nutrientes")
+        email = item.get("email")
 
-    if id_usuario:
-        id_usuario = id_usuario[0]
+        if None in (pote_id, umidade, nutrientes, email):
+            con.close()
+            return jsonify({"error": f"Dados incompletos para pote_id {pote_id}"}), 400
 
-        c.execute("UPDATE potes SET agua = ?, nutri = ? WHERE id_user = ?", (umidade, nutrientes, id_usuario))
-        con.commit()
-        con.close()
+        c.execute("SELECT potes.id_pote FROM potes JOIN users ON potes.id_user = users.id_user WHERE potes.id_pote = ? AND users.email = ?", (pote_id, email))
 
-        return jsonify({"message": "Dados recebidos com sucesso", }), 200
+        result = c.fetchone()
 
+        if not result:
+            con.close()
+            return jsonify({"error": f"Pote {pote_id} não encontrado ou não pertence ao usuário"}), 404
+
+        c.execute("UPDATE potes SET agua = ?, nutri = ? WHERE id_pote = ?", (umidade, nutrientes, pote_id))
+        create_graphs(int(umidade), "w", pote_id, con, c)
+        create_graphs(int(nutrientes), "n", pote_id, con, c)
+
+    con.commit()
     con.close()
-    return jsonify({"error": "Usuário não encontrado"}), 404
+
+    return jsonify({"message": "Dados recebidos com sucesso!"}), 200
+
 
 if __name__ == '__main__':
     init_db()   

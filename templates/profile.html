@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Perfil</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
 
@@ -56,17 +57,17 @@
                             <div class="flex justify-between mt-4">
                                 <div class="text-center">
                                     <p>Água</p>
-                                    <img src="data:image/png;base64,{{ water_graph }}" width="120" height="120"/>
+                                    <img src="data:image/png;base64,{{ pote.water_graph }}" width="120" height="120"/>
                                     <p>{{ pote.agua }}%</p>
                                 </div>
                                 <div class="text-center">
                                     <p>Nutrientes</p>
-                                    <img src="data:image/png;base64,{{ nutri_graph }}" width="120" height="120"/>
+                                    <img src="data:image/png;base64,{{ pote.nutri_graph }}" width="120" height="120"/>
                                     <p>{{ pote.nutri }}%</p>
                                 </div>
                             </div>
                         {% endif %}
-
+                        
                         <br>
                         <form action="{{ url_for('delete_pote', pote_id=pote['id_pote']) }}" method="POST" class="absolute top-2 right-2">
                             <button type="submit" class="text-red-500 hover:text-red-700 focus:outline-none text-2xl">
