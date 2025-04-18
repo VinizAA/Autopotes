@@ -296,8 +296,10 @@ def get_sensor_data():
 
     data = request.get_json()
 
-    if not isinstance(data, list):
-        return jsonify({"error": "Esperado uma lista de objetos"}), 400
+    if isinstance(data, dict):
+        data = [data]
+    elif not isinstance(data, list):
+        return jsonify({"error": "Esperado uma lista ou um objeto JSON"}), 400
 
     con = sqlite3.connect('clients.db')
     c = con.cursor()
