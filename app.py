@@ -365,6 +365,77 @@ def get_pote_id(email):
         return jsonify({"pote_id": result[0]})
     else:
         return jsonify({"error": "Nenhum pote encontrado para este usuário"}), 404
+    
+@app.route('/stream')
+def stream():
+    email = request.args.get('email')
+    
+    def event_stream():
+        con = sqlite3.connect('clients.db')
+        c = con.cursor()
+        
+        last_data_hash = None
+        
+        while True:
+            try:
+                # Busca os dados atuais dos potes
+                c.execute("""
+                    SELECT id_pote, nome, especie, agua, nutri 
+                    FROM potes 
+                    WHERE id_user = (SELECT id_user FROM users WHERE email = ?)
+                """, (email,))
+                
+                current_data = c.fetchall()
+                
+                # Converte para formato JSON
+                potes_data = []
+                for pote in current_data:
+                    potes_data.append({
+                        "id_pote": pote[0],
+                        "nome": pote[1],
+                        "especie": pote[2],
+                        "agua": pote[3],
+                        "nutri": pote[4]
+                    })
+                
+                # Calcula um hash simples para comparar mudanças
+                current_hash = hash(json.dumps(potes_data))
+                
+                if current_hash != last_data_hash:
+                    yield f"data: {json.dumps(potes_data)}\n\n"
+                    last_data_hash = current_hash
+                
+                time.sleep(5)  # Intervalo entre verificações
+                
+            except Exception as e:
+                print(f"Erro no stream: {e}")
+                time.sleep(10)  # Espera mais em caso de erro
+                continue
+    
+    return Response(event_stream(), mimetype="text/event-stream")
+
+@app.route('/get_graph')
+def get_graph():
+    graph_type = request.args.get('type')  # 'w' ou 'n'
+    pote_id = request.args.get('pote_id')
+    
+    try:
+        con = sqlite3.connect('clients.db')
+        c = con.cursor()
+        
+        column = 'w_graph' if graph_type == 'w' else 'n_graph'
+        c.execute(f"SELECT {column} FROM potes WHERE id_pote = ?", (pote_id,))
+        graph_data = c.fetchone()
+        
+        if graph_data and graph_data[0]:
+            return send_file(BytesIO(graph_data[0]), mimetype='image/png')
+        else:
+            return send_file('static/default_graph.png'), 404
+    except Exception as e:
+        print(f"Erro ao buscar gráfico: {e}")
+        return send_file('static/default_graph.png'), 500
+    finally:
+        con.close()
 
 
 if __name__ == '__main__':

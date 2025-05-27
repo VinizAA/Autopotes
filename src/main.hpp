@@ -29,18 +29,23 @@ void saveConfigCallback() {
     Serial.println("Configurações salvas via WiFiManager");
 }
 
-int readMoistureSensor() {
+int readMoistureSensor() {                           
     int sensorValue = analogRead(moistureSensorPin);
-    int dryValue = 4095;
-    int wetValue = 1500;
-
+    
+    int dryValue = 4095;   // Valor quando completamente seco (ar)
+    int wetValue = 400;   // Valor quando completamente molhado (em água)
+    
     sensorValue = constrain(sensorValue, wetValue, dryValue);
+    
     int moisture = map(sensorValue, dryValue, wetValue, 0, 100);
-
-    Serial.print("Umidade: ");
+    
+    // Debug (opcional)
+    Serial.print("Leitura bruta: ");
+    Serial.print(sensorValue);
+    Serial.print(" - Umidade: ");
     Serial.print(moisture);
     Serial.println("%");
-
+    
     return moisture;
 }
 

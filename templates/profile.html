@@ -43,11 +43,11 @@
         {% if potes %}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for pote in potes %}
-                    <div class="bg-white p-4 rounded-lg shadow relative">
+                    <div id="pote-{{ pote.id_pote }}" class="bg-white p-4 rounded-lg shadow relative">
                         <p class="absolute bottom-2 right-2 text-sm text-gray-500">{{ pote.data_criacao }}</p>
                         
                         <h3 class="text-xl font-bold">{{ pote.nome }}</h3>
-                        <p><i id="especie">{{ pote.especie }}</i></p>
+                        <p><i class="especie">{{ pote.especie }}</i></p>
 
                         {% if error_message %}
                             <div class="alert alert-danger">
@@ -57,13 +57,13 @@
                             <div class="flex justify-between mt-4">
                                 <div class="text-center">
                                     <p>Água</p>
-                                    <img src="data:image/png;base64,{{ pote.water_graph }}" width="120" height="120"/>
-                                    <p>{{ pote.agua }}%</p>
+                                    <img class="agua-img" src="data:image/png;base64,{{ pote.water_graph }}" width="120" height="120"/>
+                                    <p class="agua-percent">{{ pote.agua }}%</p>
                                 </div>
                                 <div class="text-center">
                                     <p>Nutrientes</p>
-                                    <img src="data:image/png;base64,{{ pote.nutri_graph }}" width="120" height="120"/>
-                                    <p>{{ pote.nutri }}%</p>
+                                    <img class="nutri-img" src="data:image/png;base64,{{ pote.nutri_graph }}" width="120" height="120"/>
+                                    <p class="nutri-percent">{{ pote.nutri }}%</p>
                                 </div>
                             </div>
                         {% endif %}
@@ -81,9 +81,61 @@
             <p class="text-center text-gray-600 text-xl mt-10 font-bold">Nenhum pote cadastrado</p>
         {% endif %}
     </div>
+
     <script>
-        const especie = document.getElementById('especie');
-        especie.textContent = especie.textContent.charAt(0).toUpperCase() + especie.textContent.slice(1).toLowerCase();
+        // Formata a primeira letra da espécie para maiúscula
+        document.querySelectorAll('.especie').forEach(element => {
+            element.textContent = element.textContent.charAt(0).toUpperCase() + 
+                                 element.textContent.slice(1).toLowerCase();
+        });
+
+        // Função para atualizar os dados do pote
+        function updatePoteData(poteData) {
+            const poteElement = document.getElementById(`pote-${poteData.id_pote}`);
+            if (!poteElement) return;
+
+            // Atualiza os valores percentuais
+            const aguaPercent = poteElement.querySelector('.agua-percent');
+            const nutriPercent = poteElement.querySelector('.nutri-percent');
+            
+            if (aguaPercent) aguaPercent.textContent = `${poteData.agua}%`;
+            if (nutriPercent) nutriPercent.textContent = `${poteData.nutri}%`;
+            
+            // Atualiza as imagens dos gráficos com cache busting
+            const aguaImg = poteElement.querySelector('.agua-img');
+            const nutriImg = poteElement.querySelector('.nutri-img');
+            
+            if (aguaImg) {
+                aguaImg.src = `/get_graph?type=w&pote_id=${poteData.id_pote}&t=${Date.now()}`;
+            }
+            if (nutriImg) {
+                nutriImg.src = `/get_graph?type=n&pote_id=${poteData.id_pote}&t=${Date.now()}`;
+            }
+        }
+
+        // Conecta ao SSE para atualizações em tempo real
+        if (typeof(EventSource) !== "undefined") {
+            const eventSource = new EventSource(`/stream?email=${encodeURIComponent('{{ email }}')}`);
+            
+            eventSource.onmessage = function(event) {
+                try {
+                    const potesData = JSON.parse(event.data);
+                    potesData.forEach(updatePoteData);
+                } catch (error) {
+                    console.error("Erro ao processar atualização:", error);
+                }
+            };
+            
+            eventSource.onerror = function() {
+                console.error("Erro na conexão SSE. Tentando reconectar...");
+                eventSource.close();
+                setTimeout(() => {
+                    location.reload();
+                }, 5000);
+            };
+        } else {
+            console.warn("Seu navegador não suporta Server-Sent Events. As atualizações serão manuais.");
+        }
     </script>
 </body>
 </html>
