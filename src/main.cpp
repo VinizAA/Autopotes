@@ -2,9 +2,13 @@
 #include "main.hpp"
 #include <WebServer.h>
 
+#define VALVE_PIN 4
+
 WebServer server(80);
 
 void setup() {
+  pinMode(VALVE_PIN, OUTPUT);
+
   Serial.begin(9600);
   
   // Carrega configurações salvas
@@ -76,5 +80,11 @@ void loop() {
       WiFi.reconnect();
     }
     lastTime = millis();
+  }
+
+  int curr_moisture = readMoistureSensor();
+  if (curr_moisture < 20 && digitalRead(VALVE_PIN) == LOW) digitalWrite(VALVE_PIN, HIGH);
+  else {
+    if (digitalRead(VALVE_PIN) == HIGH) digitalWrite(VALVE_PIN, LOW);
   }
 }
