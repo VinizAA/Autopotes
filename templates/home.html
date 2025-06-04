@@ -1,0 +1,189 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Autopotes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            background-color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #sidebar h2 {
+            color: #333;
+        }
+
+        #sidebar a {
+            color: #555;
+            transition: color 0.3s;
+        }
+
+        #sidebar a:hover {
+            color: #007bff;
+        }
+
+        /* Botões */
+        button {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        /* Título principal */
+        main h1 {
+            color: #333;
+        }
+
+        /* Links */
+        main a {
+            color: #007bff;
+            text-decoration: none;
+            transition: text-decoration 0.3s;
+        }
+
+        main a:hover {
+            text-decoration: underline;
+        }
+
+        /* Rodapé */
+        footer {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode #sidebar {
+            background-color: #1e1e1e;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode main h1 {
+            color: #ffffff;
+        }
+
+        body.dark-mode a {
+            color: #6a0dad;
+        }
+
+        body.dark-mode a:hover {
+            color: #4b0082;
+        }
+
+        body.dark-mode footer {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        body.dark-mode #sidebar a {
+            color: #ffffff;
+        }
+
+        body.dark-mode #sidebar a:hover {
+            color: #cccccc;
+        }
+
+        body.dark-mode #sidebar h2 {
+            color: #ffffff;
+        }
+
+        /* Botão Dark Mode */
+        .dark-mode-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 50%;
+            font-size: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode-btn:hover {
+            background-color: #555;
+            color: #ddd;
+        }
+    </style> 
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    <main class="flex-grow flex flex-col items-center justify-center text-center">
+        <img id="logo" class="mb-4" height="200" src="{{ url_for('static', filename='logo.png') }}" width="200"/>
+        <h1 class="text-8xl font-bold mb-4">AUTOPOTES</h1>
+        <div class="flex space-x-8 text-xl font-semibold">
+            <a class="hover:underline" href="/login">LOGIN</a>
+            <a class="hover:underline" href="/register">CADASTRAR</a>
+        </div>
+    </main>
+
+    <footer class="bg-gray-200 text-center p-4 text-sm">
+        Endereço: Rua Emilio Venturini, 33 | Telefone: (13) 99715-4100 | Email: contato@autopotes.com
+    </footer>
+
+    <button class="dark-mode-btn" onclick="darkmode()">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <script>
+        const sidebar = document.getElementById("sidebar");
+        const openSidebar = document.getElementById("openSidebar");
+        const closeSidebar = document.getElementById("closeSidebar");
+
+        openSidebar.addEventListener("click", () => {
+            sidebar.classList.remove("-translate-x-full");
+        });
+
+        closeSidebar.addEventListener("click", () => {
+            sidebar.classList.add("-translate-x-full");
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!sidebar.contains(event.target) && !openSidebar.contains(event.target)) {
+                sidebar.classList.add("-translate-x-full");
+            }
+        });
+
+        function darkmode() {
+            document.body.classList.toggle("dark-mode");
+
+            const logo = document.getElementById("logo");
+            if (document.body.classList.contains("dark-mode")) {
+                localStorage.setItem('dark-mode', 'enabled'); 
+                document.querySelector('.dark-mode-btn i').classList.replace("fa-moon", "fa-sun");
+                logo.src = "{{ url_for('static', filename='logo_dark_mode.png') }}"; // Logo escura
+            } else {
+                localStorage.setItem('dark-mode', 'disabled'); 
+                document.querySelector('.dark-mode-btn i').classList.replace("fa-sun", "fa-moon");
+                logo.src = "{{ url_for('static', filename='logo.png') }}"; // Logo clara
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            if (!sessionStorage.getItem("audioPlayed")) {
+                var audio = new Audio("{{ url_for('static', filename='optimus_prime.mp3') }}");
+                audio.play().then(() => {
+                    sessionStorage.setItem("audioPlayed", "true");
+                }).catch(error => console.log("Erro ao reproduzir áudio:", error));
+            }
+        });
+    </script>
+
+</body>
+</html>

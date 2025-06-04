@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        .profile-image {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+            margin-right: 10px;
+        }
+        .error {
+            color: red;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-7xl mx-auto p-4 relative">
+        <div class="fixed top-4 left-4 flex items-center">
+            <img src="/static/logo.png" alt="Logo" class="w-13 h-14 mr-2">
+            <a class="text-2xl font-bold">AUTOPOTES</a>
+        </div>
+        
+        <div class="fixed top-4 right-4 flex items-center space-x-2">
+            <a href="/logout" class="bg-red-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-700">
+                Logout
+            </a>
+            <button onclick="openModal()" class="text-gray-700 hover:text-gray-900 text-2xl focus:outline-none">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+        
+        <div class="flex items-center justify-between mt-16 mb-6">
+            <div class="flex items-center">
+                {% if image_base64 %}
+                    <img src="data:image/png;base64,{{ image_base64 }}" class="profile-image">
+                {% endif %}
+                <div>
+                    <h2 class="text-xl font-bold">{{ name }}</h2>
+                    <p>{{ email }}</p>
+                </div>
+            </div>
+            <a href="/new_pote" class="text-xl font-bold">+ Novo autopote</a>
+        </div>
+        
+        {% if potes %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for pote in potes %}
+                    <div id="pote-{{ pote.id_pote }}" class="bg-white rounded-xl shadow-lg flex flex-col transition-all duration-300 hover:shadow-2xl overflow-hidden">
+                        <div class="p-5 border-b border-gray-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="name text-xl font-bold text-gray-900">{{ pote.nome }}</h3>
+                                    <p class="especie text-xs text-indigo-700 font-semibold uppercase tracking-wide">{{ pote.especie }}</p>
+                                </div>
+                                <form action="{{ url_for('delete_pote', pote_id=pote['id_pote']) }}" method="POST" class="ml-2">
+                                    <button type="submit" class="text-gray-400 hover:text-red-600 focus:outline-none text-lg p-1.5 rounded-full hover:bg-red-50 transition-colors duration-150" aria-label="Deletar pote">
+                                        <i class="fas fa-trash-alt" style="font-size: 1.5rem;"></i>
+                                    </button>
+                                </form>                                
+                            </div>
+                        </div>
+
+                        <div class="flex-grow p-5">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                                
+                                <div class="flex flex-col items-center text-center p-3 bg-blue-50 rounded-lg">
+                                    <div class="flex items-center text-blue-600 mb-1"> 
+                                        <i class="fas fa-tint fa-fw mr-0 text-lg"></i>
+                                        <p class="text-sm font-semibold">Água</p>
+                                    </div>
+                                    <img class="agua-img rounded-md mx-auto -mt-7" src="data:image/png;base64,{{ pote.water_graph }}" alt="Gráfico de Água do Pote {{pote.nome}}" style="width: 130px; height: 130px; object-fit: contain;"/> 
+                                    <p class="agua-percent text-3xl font-bold text-blue-700 -mt-6">{{ pote.agua }}<span class="text-xl font-medium">%</span></p>
+                                </div>
+                                
+                                <div class="flex flex-col items-center text-center p-3 bg-green-50 rounded-lg">
+                                    <div class="flex items-center text-green-600 mb-1"> 
+                                        <i class="fas fa-leaf fa-fw mr-1 text-lg"></i>
+                                        <p class="text-sm font-semibold">Nutrientes</p>
+                                    </div>
+                                    <img class="nutri-img rounded-md mx-auto -mt-7" src="data:image/png;base64,{{ pote.nutri_graph }}" alt="Gráfico de Nutrientes do Pote {{pote.nome}}" style="width: 130px; height: 130px; object-fit: contain;"/> 
+                                    <p class="nutri-percent text-3xl font-bold text-green-700 -mt-6">{{ pote.nutri }}<span class="text-xl font-medium">%</span></p> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-gray-50 border-t border-gray-200 mt-auto">
+                            <p class="text-xs text-gray-500 text-right">Criado em: {{ pote.data_criacao }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <img src="https://placehold.co/120x120/e0e0e0/909090?text=:(" alt="Nenhum pote" class="mx-auto mb-4 rounded-lg">
+                <p class="text-center text-gray-600 text-xl mt-6 font-semibold">Nenhum pote cadastrado ainda.</p>
+                <p class="text-gray-500 mt-2">Clique em "+ Novo autopote" para adicionar seu primeiro pote!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Modal customizado Tailwind -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl transform transition-all scale-100">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-4">⚠️ Deletar conta</h2>
+            
+            <form method="POST" action="{{ url_for('delete_account') }}">
+                <p class="mb-4 text-gray-600 leading-relaxed">
+                    Esta ação é 
+                    <span class="text-red-600 font-bold">IRREVERSÍVEL</span>.<br>
+                    Por favor, digite sua senha para confirmar:
+                </p>
+    
+                <input type="password" name="password" 
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" 
+                    placeholder="Digite sua senha" 
+                    required>
+    
+                {% if error_message %}
+                    <div class="text-red-600 text-sm mb-3 font-semibold">
+                        {{ error_message }}
+                    </div>
+                {% endif %}
+    
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeModal()" 
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                        Deletar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+    <script>
+        function openModal() {
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        document.querySelectorAll('.especie, .name').forEach(element => {
+            element.textContent = element.textContent.charAt(0).toUpperCase() + 
+                                element.textContent.slice(1).toLowerCase();
+        });
+
+        {% if error_message %}
+            openModal();
+        {% endif %}
+    </script>
+</body>
+</html>

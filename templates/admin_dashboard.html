@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - Autopots</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Estilos mínimos se o Tailwind demorar para carregar ou para overrides */
+    body {
+      font-family: sans-serif;
+    }
+    .profile-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800 antialiased min-h-screen flex flex-col">
+
+  <nav class="bg-gray-800 shadow-lg">
+    <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+      <a href="{{ url_for('home') }}" class="text-xl font-bold text-white hover:text-gray-300">ADMIN</a>
+      <div class="flex items-center">
+        {% if session.email %}
+          {# O admin não tem um 'perfil de usuário' normal, então o link pode ser removido ou ir para home #}
+          {# <a href="{{ url_for('profile', email_param=session.email) }}" class="px-3 py-2 text-gray-300 hover:text-white rounded">Meu Perfil</a> #}
+          <a href="{{ url_for('logout') }}" class="ml-4 px-3 py-2 text-gray-300 bg-red-600 hover:bg-red-700 rounded font-medium">Logout</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="px-3 py-2 text-gray-300 hover:text-white rounded">Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-grow">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+      <header class="mb-10 text-center">
+        <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">Dashboard do Administrador</h1>
+      </header>
+
+      <section class="mb-12">
+        <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-6 pb-2 border-b border-gray-300">Usuários Registrados</h2>
+
+        {% if users %}
+          <div class="bg-white shadow-xl rounded-lg overflow-x-auto">
+            <table class="min-w-full table-auto">
+              <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <tr>
+                  <th class="py-3 px-6 text-left">ID</th>
+                  <th class="py-3 px-6 text-left">Nome Completo</th>
+                  <th class="py-3 px-6 text-left">Email</th>
+                  <th class="py-3 px-6 text-center">Foto</th>
+                  <th class="py-3 px-6 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-700 text-sm font-light">
+                {% for user_item in users %}
+                  <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-4 px-6 text-left whitespace-nowrap">{{ user_item.id_user }}</td>
+                    <td class="py-4 px-6 text-left">{{ user_item.full_name }}</td>
+                    <td class="py-4 px-6 text-left">{{ user_item.email }}</td>
+                    <td class="py-4 px-6 text-center">
+                      {% if user_item.profile_pic_b64 %}
+                        <img src="data:image/png;base64,{{ user_item.profile_pic_b64 }}" alt="Foto de {{ user_item.full_name }}" class="profile-thumb">
+                      {% else %}
+                        <span class="text-gray-400 italic">Sem foto</span>
+                      {% endif %}
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                      {% if session.is_admin and user_item.id_user == session.id %}
+                        <span class="text-xs text-gray-500 italic">(Admin Atual)</span>
+                      {% else %}
+                        <form action="{{ url_for('admin_delete_user', user_id=user_item.id_user) }}" method="POST">
+                          <button type="submit" class="bg-red-500 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline">
+                            Deletar
+                          </button>
+                        </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="bg-white text-center p-6 rounded-lg shadow text-gray-500">
+            Nenhum usuário registrado ainda.
+          </div>
+        {% endif %}
+      </section>
+
+      <section>
+        <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-6 pb-2 border-b border-gray-300">Potes Cadastrados</h2>
+
+        {% if potes %}
+          <div class="bg-white shadow-xl rounded-lg overflow-x-auto">
+            <table class="min-w-full table-auto">
+              <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <tr>
+                  <th class="py-3 px-6 text-left">ID Pote</th>
+                  <th class="py-3 px-6 text-left">Nome do Pote</th>
+                  <th class="py-3 px-6 text-left">Espécie</th>
+                  <th class="py-3 px-6 text-left">Data Criação</th>
+                  <th class="py-3 px-6 text-center">Água (%)</th>
+                  <th class="py-3 px-6 text-center">Nutri. (%)</th>
+                  <th class="py-3 px-6 text-left">Usuário</th>
+                  <th class="py-3 px-6 text-left">Email do Usuário</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-700 text-sm font-light">
+                {% for pote in potes %}
+                  <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-4 px-6 text-left whitespace-nowrap">{{ pote.id_pote }}</td>
+                    <td class="py-4 px-6 text-left">{{ pote.nome_pote }}</td>
+                    <td class="py-4 px-6 text-left">{{ pote.especie }}</td>
+                    <td class="py-4 px-6 text-left">{{ pote.data_criacao }}</td>
+                    <td class="py-4 px-6 text-center font-medium">{{ pote.agua if pote.agua is not none else 'N/A' }}</td>
+                    <td class="py-4 px-6 text-center font-medium">{{ pote.nutri if pote.nutri is not none else 'N/A' }}</td>
+                    <td class="py-4 px-6 text-left">{{ pote.nome_usuario }}</td>
+                    <td class="py-4 px-6 text-left">{{ pote.email_usuario }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="bg-white text-center p-6 rounded-lg shadow text-gray-500">
+            Nenhum pote cadastrado ainda.
+          </div>
+        {% endif %}
+      </section>
+    </div>
+  </main>
+  <footer class="bg-gray-800 text-white text-center p-4 mt-auto">
+    <p>&copy; {{ current_year }} Autopots. Todos os direitos reservados.</p>
+  </footer>
+</body>
+</html>
